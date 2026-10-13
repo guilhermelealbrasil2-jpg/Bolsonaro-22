@@ -1,0 +1,55 @@
+name: PC Virtual Linux
+
+on:
+  workflow_dispatch:
+
+jobs:
+  desktop:
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+
+    steps:
+      - name: Atualizar sistema
+        run: |
+          sudo apt-get update
+          sudo apt-get upgrade -y
+
+      - name: Instalar ambiente gráfico
+        run: |
+          sudo apt-get install -y \
+            xfce4 \
+            xfce4-goodies \
+            dbus-x11 \
+            tigervnc-standalone-server \
+            tigervnc-common \
+            x11-xserver-utils \
+            firefox
+
+      - name: Preparar VNC
+        run: |
+          mkdir -p ~/.vnc
+          printf '#!/bin/sh\nunset SESSION_MANAGER\nunset DBUS_SESSION_BUS_ADDRESS\nexec dbus-launch --exit-with-session startxfce4\n' > ~/.vnc/xstartup
+          chmod +x ~/.vnc/xstartup
+
+      - name: Iniciar desktop
+        run: |
+          vncserver :1 \
+            -localhost yes \
+            -geometry 1920x1080 \
+            -depth 24
+          sleep 5
+          vncserver -list
+
+      - name: Verificar recursos
+        run: |
+          echo "Processador:"
+          nproc
+          echo "Memoria:"
+          free -h
+          echo "Armazenamento:"
+          df -h /
+
+      - name: Manter sessão ativa
+        run: |
+          echo "Desktop Linux iniciado."
+          sleep infinity
