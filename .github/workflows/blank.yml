@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  desktop:
+  pc-virtual:
     runs-on: ubuntu-latest
     timeout-minutes: 350
 
@@ -19,13 +19,10 @@ jobs:
           sudo apt-get install -y \
             xfce4 \
             xfce4-goodies \
-            dbus-x11 \
             tigervnc-standalone-server \
-            tigervnc-common \
-            x11-xserver-utils \
-            firefox
+            dbus-x11
 
-      - name: Preparar VNC
+      - name: Configurar desktop
         run: |
           mkdir -p ~/.vnc
           printf '#!/bin/sh\nunset SESSION_MANAGER\nunset DBUS_SESSION_BUS_ADDRESS\nexec dbus-launch --exit-with-session startxfce4\n' > ~/.vnc/xstartup
@@ -35,21 +32,12 @@ jobs:
         run: |
           vncserver :1 \
             -localhost yes \
-            -geometry 1920x1080 \
+            -geometry 1280x720 \
             -depth 24
           sleep 5
+
+      - name: Verificar sessão
+        run: |
           vncserver -list
-
-      - name: Verificar recursos
-        run: |
-          echo "Processador:"
-          nproc
-          echo "Memoria:"
-          free -h
-          echo "Armazenamento:"
-          df -h /
-
-      - name: Manter sessão ativa
-        run: |
           echo "Desktop Linux iniciado."
           sleep infinity
